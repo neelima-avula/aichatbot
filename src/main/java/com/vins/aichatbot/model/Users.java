@@ -2,15 +2,15 @@ package com.vins.aichatbot.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 public class Users {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    @GeneratedValue
+    private UUID id;
     @Column(name = "phone_number")
     private String phoneNumber;
 
