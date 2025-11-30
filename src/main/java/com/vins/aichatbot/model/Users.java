@@ -22,7 +22,7 @@ public class Users {
 
     // GETTERS & SETTERS
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
