@@ -1,6 +1,10 @@
 package com.vins.aichatbot.controller;
 
 import com.vins.aichatbot.dto.IncomingMessageDTO;
+import com.vins.aichatbot.model.Message;
+import com.vins.aichatbot.model.Users;
+import com.vins.aichatbot.repository.MessageRepository;
+import com.vins.aichatbot.repository.UserRepository;
 import com.vins.aichatbot.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +20,13 @@ public class WebhookController {
 
     @Autowired
     private MessageService messageService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
+
     private static final Logger logger = LoggerFactory.getLogger(WebhookController.class);
 
     @PostMapping("/twilio")
@@ -23,13 +34,32 @@ public class WebhookController {
             @RequestParam("From") String from,
             @RequestParam("Body") String body) {
 
-        IncomingMessageDTO dto = new IncomingMessageDTO(from, body);
-        String reply = messageService.processIncomingMessage(dto);
+
+
+        //IncomingMessageDTO dto = new IncomingMessageDTO(from, body);
+        //String reply = messageService.processIncomingMessage(dto);
 
         logger.info("Received message from: {} | Body: {}", from, body);
 
+        String phone = from.replace("whatsapp:", "");
+
+        Users user= userRepository.findByPhoneNumber(phone)
+                .orElseGet(()->{
+                    Users newUser = new Users();
+                    newUser.setPhoneNumber(phone);
+                    newUser.setUserName("User");
+                    return userRepository.save(newUser);
+
+                });
+
+        // Save message
+        Message msg = new Message();
+        msg.setUser(user);
+        msg.setMessageText(body);
+        messageRepository.save(msg);
+
 
         // TwiML response format (Twilio requirement)
-        return "<Response><Message>" + reply + "</Message></Response>";
+        return "<Response><Message>" + "inserted one record" + "</Message></Response>";
     }
 }
