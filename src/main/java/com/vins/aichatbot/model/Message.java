@@ -13,7 +13,7 @@ public class Message {
 
     // JOIN users.id
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id")
     private Users user;
 
     @Column(name = "message_text")

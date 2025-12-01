@@ -9,8 +9,8 @@ import java.util.UUID;
 public class Users {
 
     @Id
-    @GeneratedValue
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @Column(name = "phone_number")
     private String phoneNumber;
 
@@ -22,11 +22,11 @@ public class Users {
 
     // GETTERS & SETTERS
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
