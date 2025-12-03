@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import com.vins.aichatbot.model.AiResponse;
-
 @Service
 public class AiService {
 
