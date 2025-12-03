@@ -55,6 +55,8 @@ public class WebhookController {
                     return userRepository.save(newUser);
 
                 });
+        logger.info("Received 222222 from: {} | Body: {}", from, body);
+
 
         // Save message
         Message msg = new Message();
@@ -62,11 +64,13 @@ public class WebhookController {
         msg.setMessageText(body);
         messageRepository.save(msg);
 
-
+        logger.info("Received 33333333333 from: {} | Body: {}", from, body);
         System.out.println("---------------------------------------------");
         System.out.println(body);
 
         String aiReply = aiService.getAiReply(body);
+
+        logger.info("Received 33333333333 from: {} | Body: {}", aiReply);
 
         // 3. Return reply back to WhatsApp
         return """<Response><Message>""" + aiReply + """</Message></Response>""";
