@@ -5,6 +5,7 @@ import com.vins.aichatbot.model.Message;
 import com.vins.aichatbot.model.Users;
 import com.vins.aichatbot.repository.MessageRepository;
 import com.vins.aichatbot.repository.UserRepository;
+import com.vins.aichatbot.service.AiService;
 import com.vins.aichatbot.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,9 @@ public class WebhookController {
 
     @Autowired
     private MessageRepository messageRepository;
+
+    @Autowired
+    private AiService aiService;
 
     private static final Logger logger = LoggerFactory.getLogger(WebhookController.class);
 
@@ -59,7 +63,12 @@ public class WebhookController {
         messageRepository.save(msg);
 
 
+        String aiReply = aiService.getAiReply(body);
+
+        // 3. Return reply back to WhatsApp
+        return """<Response><Message>""" + aiReply + """</Message></Response>""";
+
         // TwiML response format (Twilio requirement)
-        return "<Response><Message>" + "inserted one record" + "</Message></Response>";
+       // return "<Response><Message>" + "inserted one record " + "</Message></Response>";
     }
 }
