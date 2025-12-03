@@ -63,6 +63,9 @@ public class WebhookController {
         messageRepository.save(msg);
 
 
+        System.out.println("---------------------------------------------");
+        System.out.println(body);
+
         String aiReply = aiService.getAiReply(body);
 
         // 3. Return reply back to WhatsApp
