@@ -1,5 +1,8 @@
 package com.vins.aichatbot.service;
 
+import com.vins.aichatbot.controller.WebhookController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -8,6 +11,8 @@ import reactor.core.publisher.Mono;
 public class AiService {
 
     private final WebClient webClient;
+
+    private static final Logger logger = LoggerFactory.getLogger(WebhookController.class);
 
     public AiService() {
         this.webClient = WebClient.builder()
@@ -21,6 +26,8 @@ public class AiService {
             var request = new java.util.HashMap<String, String>();
             request.put("prompt", userPrompt);
 
+            logger.info("web client  1111from: {} | Body: {}", System.getenv("AI_SERVICE_URL"));
+
             // Call Python API
             String response = String.valueOf(webClient.post()
                     .uri("/ai")
@@ -29,6 +36,7 @@ public class AiService {
                     .bodyToMono(AiResponse.class)
                     .block()); // synchronous
 
+            logger.info("web client  222222from: {} | Body: {}", response);
             return response != null ? response: "AI Error";
         } catch (Exception e) {
             return "AI service error: " + e.getMessage();
