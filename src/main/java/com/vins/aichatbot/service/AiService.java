@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import com.vins.aichatbot.model.AiResponse;
 
 @Service
 public class AiService {
@@ -29,12 +30,14 @@ public class AiService {
             logger.info("web client  1111from: {} | Body: {}", System.getenv("AI_SERVICE_URL"));
 
             // Call Python API
-            String response = String.valueOf(webClient.post()
+            AiResponse aiResponse = webClient.post()
                     .uri("/ai")
                     .bodyValue(request)
                     .retrieve()
                     .bodyToMono(AiResponse.class)
-                    .block()); // synchronous
+                    .block();
+
+            String response = aiResponse != null ? aiResponse.getReply() : "AI error";
 
             logger.info("web client  222222from: {} | Body: {}", response);
             return response != null ? response: "AI Error";
@@ -43,7 +46,5 @@ public class AiService {
         }
     }
 
-    public static class AiResponse {
-        public String reply;
-    }
+
 }
