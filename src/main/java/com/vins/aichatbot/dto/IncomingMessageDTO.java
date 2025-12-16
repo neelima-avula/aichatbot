@@ -27,4 +27,5 @@ public class IncomingMessageDTO {
     public void setBody(String body) {
         this.body = body;
     }
+
 }

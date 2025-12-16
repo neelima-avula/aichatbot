@@ -73,7 +73,7 @@ public class WebhookController {
         logger.info("Received 33333333333 from: {} | Body: {}", aiReply);
 
         // 3. Return reply back to WhatsApp
-        return "<Response><Message>" + aiReply + "</Message></Response>";
+        return  aiReply ;
 
         // TwiML response format (Twilio requirement)
        // return "<Response><Message>" + "inserted one record " + "</Message></Response>";
