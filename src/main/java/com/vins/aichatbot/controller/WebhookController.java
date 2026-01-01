@@ -9,6 +9,7 @@ import com.vins.aichatbot.service.AiService;
 import com.vins.aichatbot.service.MessageService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ public class WebhookController {
 
 
     @GetMapping("/whatsapp")
-    public String verifyWebhook(
+    public ResponseEntity<String> verifyWebhook(
             @RequestParam(name = "hub.mode", required = false) String mode,
             @RequestParam(name = "hub.verify_token", required = false) String token,
             @RequestParam(name = "hub.challenge", required = false) String challenge
@@ -46,41 +47,42 @@ public class WebhookController {
         logger.info("mode={}, token={}, challenge={}", mode, token, challenge);
 
         if ("subscribe".equals(mode) && "ai_whatsapp_webhook".equals(token)) {
-            return challenge; // MUST return challenge exactly
+            return ResponseEntity.ok(challenge); // MUST return challenge only
         }
-        return "Verification failed";
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Forbidden");
     }
     @PostMapping("/whatsapp")
-    public ResponseEntity<String> receiveWhatsAppMessage(@RequestBody Map<String, Object> payload) {
-        logger.info("📩 WhatsApp message tetsing {} : {}", payload);
+    public ResponseEntity<String> receiveWhatsAppMessage(
+            @RequestBody Map<String, Object> payload) {
+
+        logger.info("📩 WhatsApp payload received: {}", payload);
 
         try {
             Map entry = ((List<Map>) payload.get("entry")).get(0);
             Map change = ((List<Map>) entry.get("changes")).get(0);
             Map value = (Map) change.get("value");
 
-            // Ignore status callbacks
+            // Ignore delivery/status events
             if (value.get("messages") == null) {
                 return ResponseEntity.ok("EVENT_RECEIVED");
             }
 
             Map message = ((List<Map>) value.get("messages")).get(0);
-            String from = (String) message.get("from"); // user phone
+            String from = (String) message.get("from");
             Map text = (Map) message.get("text");
             String body = (String) text.get("body");
 
             logger.info("📩 WhatsApp message from {} : {}", from, body);
 
-            // Reuse your existing service
             messageService.processIncomingMessage(from, body);
 
         } catch (Exception e) {
-            logger.error("Error processing WhatsApp message", e);
+            logger.error("❌ Error processing WhatsApp message", e);
         }
 
         return ResponseEntity.ok("EVENT_RECEIVED");
     }
-
 
     @PostMapping("/twilio")
     public String receiveMessage(
