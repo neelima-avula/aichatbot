@@ -7,13 +7,15 @@ import com.vins.aichatbot.repository.MessageRepository;
 import com.vins.aichatbot.repository.UserRepository;
 import com.vins.aichatbot.service.AiService;
 import com.vins.aichatbot.service.MessageService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/webhook")
@@ -32,6 +34,51 @@ public class WebhookController {
     private AiService aiService;
 
     private static final Logger logger = LoggerFactory.getLogger(WebhookController.class);
+
+
+    @GetMapping("/whatsapp")
+    public String verifyWebhook(
+            @RequestParam(name = "hub.mode", required = false) String mode,
+            @RequestParam(name = "hub.verify_token", required = false) String token,
+            @RequestParam(name = "hub.challenge", required = false) String challenge
+    ) {
+        logger.info("🔐 Webhook verification hit");
+        logger.info("mode={}, token={}, challenge={}", mode, token, challenge);
+
+        if ("subscribe".equals(mode) && "ai_whatsapp_webhook".equals(token)) {
+            return challenge; // MUST return challenge exactly
+        }
+        return "Verification failed";
+    }
+    @PostMapping("/whatsapp")
+    public ResponseEntity<String> receiveWhatsAppMessage(@RequestBody Map<String, Object> payload) {
+        try {
+            Map entry = ((List<Map>) payload.get("entry")).get(0);
+            Map change = ((List<Map>) entry.get("changes")).get(0);
+            Map value = (Map) change.get("value");
+
+            // Ignore status callbacks
+            if (value.get("messages") == null) {
+                return ResponseEntity.ok("EVENT_RECEIVED");
+            }
+
+            Map message = ((List<Map>) value.get("messages")).get(0);
+            String from = (String) message.get("from"); // user phone
+            Map text = (Map) message.get("text");
+            String body = (String) text.get("body");
+
+            logger.info("📩 WhatsApp message from {} : {}", from, body);
+
+            // Reuse your existing service
+            messageService.processIncomingMessage(from, body);
+
+        } catch (Exception e) {
+            logger.error("Error processing WhatsApp message", e);
+        }
+
+        return ResponseEntity.ok("EVENT_RECEIVED");
+    }
+
 
     @PostMapping("/twilio")
     public String receiveMessage(
@@ -65,7 +112,7 @@ public class WebhookController {
         messageRepository.save(msg);
 
         logger.info("Received 33333333333 from: {} | Body: {}", from, body);
-        System.out.println("---------------------------------------------");
+        System.out.println("--------------------- a------------------------");
         System.out.println(body);
 
         String aiReply = aiService.getAiReply(body);

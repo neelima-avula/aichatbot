@@ -16,4 +16,15 @@ public class MessageService {
 
         return "Received your message: " + dto.getBody();
     }
+
+    public String processIncomingMessage(String from, String body) {
+
+        String message = body;
+
+        if (message.contains("hi") || message.contains("hello")) {
+            return "Hello 👋! How can I assist you today? from neelima";
+        }
+
+        return "Received your message: " + message;
+    }
 }
