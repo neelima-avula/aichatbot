@@ -1,10 +1,14 @@
 package com.vins.aichatbot.service;
 
 import com.vins.aichatbot.dto.IncomingMessageDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MessageService {
+
+    @Autowired
+    WhatsAppSender whatsAppSender;
 
     public String processIncomingMessage(IncomingMessageDTO dto) {
 
@@ -17,14 +21,12 @@ public class MessageService {
         return "Received your message: " + dto.getBody();
     }
 
-    public String processIncomingMessage(String from, String body) {
+    public void processIncomingMessage(String from, String body) {
 
-        String message = body;
+        if (body == null || body.isBlank()) return;
 
-        if (message.contains("hi") || message.contains("hello")) {
-            return "Hello 👋! How can I assist you today? from neelima";
-        }
+        String reply = "Hi 👋 I received your message: " + body;
 
-        return "Received your message: " + message;
+        whatsAppSender.sendTextMessage(from, reply);
     }
 }
