@@ -75,7 +75,34 @@ public class WebhookController {
 
             logger.info("📩 WhatsApp message from {} : {}", from, body);
 
-            messageService.processIncomingMessage(from, body);
+            String phone = from.replace("whatsapp:", "");
+
+            Users user= userRepository.findByPhoneNumber(phone)
+                    .orElseGet(()->{
+                        Users newUser = new Users();
+                        newUser.setPhoneNumber(phone);
+                        newUser.setUserName("User");
+                        return userRepository.save(newUser);
+
+                    });
+
+            Message msg = new Message();
+            msg.setUser(user);
+            msg.setMessageText(body);
+            messageRepository.save(msg);
+
+            logger.info("Received 33333333333 from: {} | Body: {}", from, body);
+            System.out.println("--------------------- a------------------------");
+            System.out.println(body);
+
+            String aiReply = aiService.getAiReply(body);
+
+            logger.info("Received 33333333333 from: {} | Body: {}", aiReply);
+
+            // 3. Return reply back to WhatsApp
+
+
+            messageService.processIncomingMessage(from, aiReply);
 
         } catch (Exception e) {
             logger.error("❌ Error processing WhatsApp message", e);
