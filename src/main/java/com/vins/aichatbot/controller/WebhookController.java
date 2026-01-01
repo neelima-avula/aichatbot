@@ -52,6 +52,8 @@ public class WebhookController {
     }
     @PostMapping("/whatsapp")
     public ResponseEntity<String> receiveWhatsAppMessage(@RequestBody Map<String, Object> payload) {
+        logger.info("📩 WhatsApp message tetsing {} : {}", payload);
+
         try {
             Map entry = ((List<Map>) payload.get("entry")).get(0);
             Map change = ((List<Map>) entry.get("changes")).get(0);
